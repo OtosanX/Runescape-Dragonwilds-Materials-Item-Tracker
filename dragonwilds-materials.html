@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Searchable Dragonwilds material reference with local editing, import/export, and shareable saved copies.">
+<title>Dragonwilds Material Finder</title>
+<style>
+  :root {
+    --bg: #f6f3ec;
+    --card-bg: #fff;
+    --panel: #f0ebe0;
+    --text: #2b2418;
+    --text-dim: #6b6152;
+    --accent: #8a5a2b;
+    --accent-hover: #71471f;
+    --accent-soft: #f0e2cc;
+    --border: #dfd5c2;
+    --new: #b3401f;
+    --danger-bg: #fff0eb;
+    --shadow: 0 12px 32px rgba(45, 32, 15, .10);
+    --focus: 0 0 0 3px rgba(138, 90, 43, .22);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #201b14; --card-bg: #2b2419; --panel: #332b20; --text: #f1ebdd;
+      --text-dim: #b8ab90; --accent: #e0a45f; --accent-hover: #efb777;
+      --accent-soft: #3a2f1e; --border: #4a3e2a; --new: #ff8a5c;
+      --danger-bg: #3a241d; --shadow: 0 16px 40px rgba(0,0,0,.28); --focus: 0 0 0 3px rgba(224,164,95,.22);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #201b14; --card-bg: #2b2419; --panel: #332b20; --text: #f1ebdd;
+    --text-dim: #b8ab90; --accent: #e0a45f; --accent-hover: #efb777;
+    --accent-soft: #3a2f1e; --border: #4a3e2a; --new: #ff8a5c;
+    --danger-bg: #3a241d; --shadow: 0 16px 40px rgba(0,0,0,.28); --focus: 0 0 0 3px rgba(224,164,95,.22);
+  }
+  :root[data-theme="light"] { color-scheme: light; }
+  :root[data-theme="dark"] { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; padding: 22px 18px 40px; background: var(--bg); color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif; min-height: 100vh;
+  }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: none; box-shadow: var(--focus); }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  .site-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+  .brand h1 { font-size: clamp(1.35rem, 3vw, 1.7rem); margin: 0 0 5px; letter-spacing: .35px; }
+  .sub { color: var(--text-dim); font-size: .9rem; line-height: 1.5; margin: 0; max-width: 760px; }
+  .header-actions { display: flex; gap: 7px; flex: 0 0 auto; }
+  .icon-btn { width: 40px; height: 40px; padding: 0; display: grid; place-items: center; border-radius: 9px; }
+  .search-panel { position: sticky; top: 10px; z-index: 10; padding: 10px; margin: 0 -10px 13px; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); }
+  .search-wrap { position: relative; }
+  #search { width: 100%; padding: 13px 76px 13px 15px; font-size: 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text); font-family: inherit; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+  #search::placeholder { color: var(--text-dim); opacity: .85; }
+  .search-tools { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 4px; }
+  .shortcut { font: 600 .7rem/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text-dim); border: 1px solid var(--border); border-radius: 5px; padding: 4px 5px; }
+  .clear-btn { border: 0; background: transparent; color: var(--text-dim); padding: 6px; border-radius: 6px; font-size: 1rem; }
+  .clear-btn:hover { background: var(--accent-soft); color: var(--text); }
+  .toolbar { display: flex; gap: 8px; margin: 0 0 12px; flex-wrap: wrap; align-items: center; }
+  .toolbar .spacer { flex: 1; }
+  button, select {
+    border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 8px; padding: 9px 12px; font-size: .84rem;
+  }
+  button:hover { background: var(--accent-soft); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-danger { color: var(--new); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 1px 9px; margin-bottom: 5px; scrollbar-width: thin; }
+  .chip { flex: 0 0 auto; padding: 6px 11px; border-radius: 999px; background: var(--accent-soft); color: var(--text); font-size: .78rem; cursor: pointer; border: 1px solid transparent; user-select: none; white-space: nowrap; }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #fff; }
+  .meta-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 2px 0 10px; }
+  .count { color: var(--text-dim); font-size: .82rem; }
+  .sort-wrap { display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-size: .78rem; }
+  .sort-wrap select { padding: 6px 9px; font-size: .78rem; }
+  .item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; margin-bottom: 8px; transition: border-color .15s, transform .15s, box-shadow .15s; }
+  .item:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); box-shadow: 0 4px 16px rgba(0,0,0,.05); }
+  .item-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .item-name { font-weight: bold; font-size: 1rem; line-height: 1.35; }
+  .item-name .new-tag { color: var(--new); font-size: .66rem; font-weight: bold; margin-left: 7px; border: 1px solid var(--new); border-radius: 4px; padding: 1px 5px; vertical-align: 2px; white-space: nowrap; }
+  .item-cat { font-size: .73rem; color: var(--text-dim); font-style: italic; text-align: right; }
+  .item-use { margin-top: 5px; font-size: .91rem; line-height: 1.5; color: var(--text); opacity: .92; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .item-actions { display: none; gap: 5px; margin-top: 9px; }
+  body.edit-mode .item-actions { display: flex; }
+  .btn-small { padding: 5px 9px; font-size: .73rem; }
+  .empty { text-align: center; color: var(--text-dim); padding: 48px 18px; border: 1px dashed var(--border); border-radius: 10px; background: var(--card-bg); }
+  .empty strong { display: block; color: var(--text); margin-bottom: 5px; }
+  .note { margin-top: 25px; padding-top: 14px; border-top: 1px solid var(--border); font-size: .77rem; color: var(--text-dim); line-height: 1.55; }
+  .note summary { cursor: pointer; color: var(--text); font-weight: 700; }
+  .note p { margin: 8px 0 0; }
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.52); align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+  .modal-backdrop.open { display: flex; }
+  .modal { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 21px; max-width: 470px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: var(--shadow); }
+  .modal h2 { margin: 0 0 16px; font-size: 1.15rem; }
+  .field { margin-bottom: 13px; }
+  .field label { display: block; font-size: .79rem; color: var(--text-dim); margin-bottom: 5px; }
+  .optional { opacity: .8; font-weight: normal; }
+  .field input[type="text"], .field textarea, .field select { width: 100%; padding: 10px 11px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--text); font-family: inherit; font-size: .92rem; }
+  .field textarea { min-height: 84px; resize: vertical; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.45; }
+  .field-check { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+  .field-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .field-check label { margin: 0; color: var(--text); }
+  .field-hint { margin: 5px 0 0; color: var(--text-dim); font: .72rem/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .modal-error { color: var(--new); background: var(--danger-bg); border: 1px solid color-mix(in srgb, var(--new) 35%, transparent); border-radius: 7px; padding: 8px 10px; font: .78rem/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 4px 0 12px; display: none; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 17px; }
+  .import-modal { max-width: 640px; }
+  .dup-summary { font-size: .82rem; color: var(--text-dim); margin: 0 0 12px; }
+  .dup-list { display: flex; flex-direction: column; gap: 12px; max-height: 55vh; overflow-y: auto; padding-right: 2px; }
+  .dup-row { border: 1px solid var(--border); border-radius: 9px; padding: 11px 13px; background: var(--panel); }
+  .dup-row-head { font-weight: 700; margin-bottom: 7px; }
+  .dup-compare { display: grid; grid-template-columns: 68px 1fr; gap: 5px 10px; font-size: .82rem; margin: 0; }
+  .dup-compare dt { color: var(--text-dim); }
+  .dup-compare dd { margin: 0; }
+  .dup-diff-old { background: color-mix(in srgb, #d1453b 22%, transparent); color: var(--text); border-radius: 4px; padding: 0 4px; }
+  .dup-diff-new { background: color-mix(in srgb, #3fa15c 24%, transparent); color: var(--text); border-radius: 4px; padding: 0 4px; }
+  .dup-diff-old-block, .dup-diff-new-block { display: block; padding: 5px 8px; border-radius: 6px; margin-top: 3px; line-height: 1.4; }
+  .dup-diff-old-block { background: color-mix(in srgb, #d1453b 14%, transparent); border-left: 3px solid #d1453b; }
+  .dup-diff-new-block { background: color-mix(in srgb, #3fa15c 15%, transparent); border-left: 3px solid #3fa15c; }
+  .dup-diff-old-block b, .dup-diff-new-block b { font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; opacity: .75; display: block; margin-bottom: 1px; }
+  .dup-arrow { color: var(--text-dim); padding: 0 3px; }
+  .dup-actions { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+  .dup-actions button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .dup-actions .btn-keep { color: #d1453b; border-color: #d1453b; }
+  .dup-actions .btn-keep.active { background: #d1453b; color: #fff; border-color: #d1453b; }
+  .dup-actions .btn-imported { color: #3fa15c; border-color: #3fa15c; }
+  .dup-actions .btn-imported.active { background: #3fa15c; color: #fff; border-color: #3fa15c; }
+  .dup-edit-fields { display: flex; flex-direction: column; gap: 9px; }
+  .dup-edit-fields label { display: block; font-size: .74rem; color: var(--text-dim); margin-bottom: 3px; }
+  .dup-edit-fields input[type="text"], .dup-edit-fields textarea { width: 100%; padding: 8px 9px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-family: inherit; font-size: .85rem; }
+  .dup-edit-fields textarea { min-height: 60px; resize: vertical; }
+  .dup-edit-fields .field-check { display: flex; align-items: center; gap: 7px; }
+  .dup-edit-fields .field-check label { margin: 0; }
+  .editor-badge { font-size: .78rem; color: var(--text-dim); background: transparent; border-style: dashed; }
+  .editor-badge strong { color: var(--text); font-weight: 700; }
+  #editModeBtn[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .changelog-modal { max-width: 620px; }
+  .changelog-list { display: flex; flex-direction: column; gap: 8px; max-height: 60vh; overflow-y: auto; margin: 10px 0 4px; }
+  .changelog-entry { border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; background: var(--panel); font-size: .84rem; }
+  .changelog-entry-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .changelog-action { font-weight: 700; }
+  .changelog-action.act-added { color: #3fa15c; }
+  .changelog-action.act-edited { color: var(--accent); }
+  .changelog-action.act-deleted { color: var(--new); }
+  .changelog-action.act-reset { color: var(--text-dim); }
+  .changelog-action.act-import { color: var(--accent); }
+  .changelog-meta { font-size: .74rem; color: var(--text-dim); }
+  .changelog-detail { margin-top: 4px; color: var(--text-dim); font-size: .8rem; line-height: 1.45; }
+  .changelog-empty { text-align: center; color: var(--text-dim); padding: 30px 0; font-style: italic; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 12px); z-index: 100; background: var(--text); color: var(--bg); border-radius: 9px; padding: 10px 13px; box-shadow: var(--shadow); font: .82rem/1.3 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; max-width: min(92vw, 520px); }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast button { margin-left: 10px; padding: 4px 8px; border-color: currentColor; color: inherit; background: transparent; }
+  .stats { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+  .stat { font: .72rem/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text-dim); border: 1px solid var(--border); border-radius: 999px; padding: 6px 8px; background: var(--card-bg); }
+  .stat strong { color: var(--text); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  @media (max-width: 650px) {
+    body { padding: 15px 12px 32px; }
+    .site-header { align-items: flex-start; }
+    .sub { font-size: .82rem; }
+    .search-panel { top: 0; margin-left: -4px; margin-right: -4px; }
+    .toolbar .spacer { display: none; }
+    .toolbar button { flex: 1 1 auto; }
+    .meta-row { align-items: flex-start; flex-direction: column; gap: 7px; }
+    .sort-wrap { width: 100%; justify-content: space-between; }
+    .sort-wrap select { flex: 1; max-width: 230px; }
+    .item-head { flex-direction: column; gap: 3px; }
+    .item-cat { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <div class="brand">
+      <h1>Dragonwilds Material Finder</h1>
+      <p class="sub">Search or filter by category to find what a material is used for. Covers the 1.0 "Rage of Kuldra" launch (Sept 15, 2026).</p>
+      <div class="stats" id="stats" aria-label="Material statistics"></div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
+    </div>
+  </header>
+
+  <section class="search-panel" aria-label="Search and filters">
+    <div class="search-wrap">
+      <label class="sr-only" for="search">Search materials</label>
+      <input type="text" id="search" placeholder="Search a material, use, or category…" autocomplete="off" spellcheck="false">
+      <div class="search-tools">
+        <span class="shortcut" title="Focus search">/</span>
+        <button class="clear-btn" id="clearSearchBtn" type="button" aria-label="Clear search" title="Clear search" hidden>×</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="toolbar" aria-label="Material tools">
+    <button class="btn-primary" id="addBtn" type="button">+ Add Material</button>
+    <button id="saveFileBtn" type="button">Save updated file</button>
+    <button id="shareFileBtn" type="button">Share file</button>
+    <button id="exportBtn" type="button">Export JSON</button>
+    <button id="importBtn" type="button">Import JSON</button>
+    <button id="changelogBtn" type="button">Changelog</button>
+    <button id="editModeBtn" type="button" aria-pressed="false">Edit mode: Off</button>
+    <button id="resetBtn" type="button">Reset defaults</button>
+    <input type="file" id="importInput" accept="application/json,.json" hidden>
+    <span class="spacer"></span>
+    <button class="editor-badge" id="editorBtn" type="button" title="Click to change the name attached to your edits"></button>
+  </div>
+
+  <div class="chips" id="chips" role="tablist" aria-label="Material categories"></div>
+  <div class="meta-row">
+    <div class="count" id="count" aria-live="polite"></div>
+    <label class="sort-wrap" for="sortSelect">Sort
+      <select id="sortSelect" aria-label="Sort materials">
+        <option value="name">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+        <option value="category">Category, then name</option>
+        <option value="new">NEW first</option>
+      </select>
+    </label>
+  </div>
+  <main id="results" aria-live="polite"></main>
+
+  <details class="note">
+    <summary>About this list &amp; saving your changes</summary>
+    <p>This covers confirmed material families and their uses, not literally every one of the game's 1000+ individual items. Entries tagged NEW were added with today's 1.0 launch — some exact recipes are still being confirmed by the community as the patch is only hours old. For anything not listed here, check dragonwilds.runescape.wiki.</p>
+    <p>Your edits auto-save in this browser. <strong>Save updated file</strong> embeds your current list into a standalone HTML file you can keep, back up, or send to someone else. JSON export/import is useful for moving just the data — when importing and merging, any name matches (ignoring case, spacing, and punctuation) will prompt you to keep the existing entry, use the imported one, or edit a combined version before applying.</p>
+  </details>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">Add Material</h2>
+    <form id="itemForm">
+      <div class="field">
+        <label for="fName">Name</label>
+        <input type="text" id="fName" autocomplete="off" maxlength="120" required>
+      </div>
+      <div class="field">
+        <label for="fCat">Category</label>
+        <select id="fCat"></select>
+      </div>
+      <div class="field" id="newCatField" style="display:none;">
+        <label for="fNewCat">New category name</label>
+        <input type="text" id="fNewCat" autocomplete="off" maxlength="80">
+      </div>
+      <div class="field">
+        <label for="fUse">Description / Use <span class="optional">(required)</span></label>
+        <textarea id="fUse" maxlength="500" placeholder="What is it used for, or how is it processed?"></textarea>
+        <p class="field-hint">Short, searchable wording works best.</p>
+      </div>
+      <div class="field field-check">
+        <input type="checkbox" id="fNew">
+        <label for="fNew">Mark as <strong>NEW 1.0</strong></label>
+      </div>
+      <div class="modal-error" id="modalError" role="alert"></div>
+      <div class="modal-actions">
+        <button type="button" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Add Material</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal-backdrop" id="importModalBackdrop" aria-hidden="true">
+  <div class="modal import-modal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+    <h2 id="importModalTitle">Resolve duplicate materials</h2>
+    <p class="dup-summary" id="importSummary"></p>
+    <div class="dup-list" id="dupList"></div>
+    <div class="modal-actions">
+      <button type="button" id="importCancelBtn">Cancel import</button>
+      <button type="button" class="btn-primary" id="importApplyBtn">Apply</button>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" id="changelogModalBackdrop" aria-hidden="true">
+  <div class="modal changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelogModalTitle">
+    <h2 id="changelogModalTitle">Changelog</h2>
+    <p class="dup-summary">Who added, edited, or removed which materials, most recent first.</p>
+    <div class="changelog-list" id="changelogList"></div>
+    <div class="modal-actions">
+      <button type="button" id="clearChangelogBtn" class="btn-danger">Clear changelog</button>
+      <button type="button" class="btn-primary" id="closeChangelogBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_DATA = [
+  // Ores & Bars
+  {name:"Copper Ore", cat:"Ores & Bars", use:"Smelted with Tin Ore into Bronze Bar at the Furnace."},
+  {name:"Tin Ore", cat:"Ores & Bars", use:"Smelted with Copper Ore into Bronze Bar at the Furnace."},
+  {name:"Iron Ore", cat:"Ores & Bars", use:"Smelted into Iron Bar at the Furnace."},
+  {name:"Silver Ore", cat:"Ores & Bars", use:"Smelted into Silver Bar; used in jewelry crafting."},
+  {name:"Gold Ore", cat:"Ores & Bars", use:"Smelted into Gold Bar; used in jewelry crafting."},
+  {name:"Blurite Ore", cat:"Ores & Bars", use:"Smelted into Blurite Bar for Blurite crossbows and bolts."},
+  {name:"Mithril Ore", cat:"Ores & Bars", use:"Smelted into Mithril Bar at the Blast Furnace."},
+  {name:"Adamantite Ore", cat:"Ores & Bars", use:"Smelted into Adamant Bar at the Blast Furnace; pre-1.0 top gear tier."},
+  {name:"Runite Ore", cat:"Ores & Bars", use:"Top-tier ore from Scorned Wilderness; smelts into Runite Bar for Rune-tier gear.", isNew:true},
+  {name:"Black Metal Scraps", cat:"Ores & Bars", use:"Dropped by Black Knights; reforged into Black Metal Bar at the Blast Furnace."},
+  {name:"Black Salvage Pile", cat:"Ores & Bars", use:"Searchable scraps yielding Black Knight materials."},
+  {name:"Bronze Salvage Pile", cat:"Ores & Bars", use:"Reforged into Bronze Bar."},
+  {name:"Bronze Bar", cat:"Ores & Bars", use:"Base metal at the Blacksmith's/Fletching/Armour Bench."},
+  {name:"Iron Bar", cat:"Ores & Bars", use:"Base metal at the Blacksmith's/Fletching/Armour Bench."},
+  {name:"Silver Bar", cat:"Ores & Bars", use:"Jewelry crafting."},
+  {name:"Gold Bar", cat:"Ores & Bars", use:"Jewelry crafting."},
+  {name:"Blurite Bar", cat:"Ores & Bars", use:"Blurite crossbow and bolt crafting."},
+  {name:"Mithril Bar", cat:"Ores & Bars", use:"Mithril-tier equipment at Blacksmith's/Armour Bench."},
+  {name:"Adamant Bar", cat:"Ores & Bars", use:"Adamant-tier equipment; also used in Mystic Forge recipes."},
+  {name:"Runite Bar", cat:"Ores & Bars", use:"Runite-tier equipment from the Scorned Wilderness raid.", isNew:true},
+  {name:"Black Metal Bar", cat:"Ores & Bars", use:"Black Knight-tier weapons and armor."},
+
+  // Stone & Earth
+  {name:"Granite", cat:"Stone & Earth", use:"Building material; ground into Ground Granite at the Grindstone."},
+  {name:"Stone", cat:"Stone & Earth", use:"Basic building material; ground into Ground Stone."},
+  {name:"Sandstone", cat:"Stone & Earth", use:"Ground into Ground Sandstone for desert-region recipes."},
+  {name:"Gypsum", cat:"Stone & Earth", use:"Ground into Ground Gypsum for specific recipes."},
+  {name:"Limestone", cat:"Stone & Earth", use:"Ground into Ground Limestone."},
+  {name:"Clay", cat:"Stone & Earth", use:"Shaped into vessels at the Pottery Wheel; also a potion ingredient."},
+  {name:"Ground Granite", cat:"Stone & Earth", use:"Higher-tier potion and crafting ingredient."},
+  {name:"Ground Stone", cat:"Stone & Earth", use:"Higher-tier crafting ingredient."},
+  {name:"Ground Sandstone", cat:"Stone & Earth", use:"Higher-tier crafting ingredient."},
+  {name:"Ground Gypsum", cat:"Stone & Earth", use:"Specific higher-tier recipes."},
+  {name:"Ground Limestone", cat:"Stone & Earth", use:"Specific higher-tier recipes."},
+
+  // Gems
+  {name:"Sapphire", cat:"Gems", use:"Jewelry crafting (rings, amulets)."},
+  {name:"Red Topaz", cat:"Gems", use:"Jewelry crafting."},
+  {name:"Jade", cat:"Gems", use:"Jewelry crafting."},
+  {name:"Opal", cat:"Gems", use:"Jewelry crafting."},
+  {name:"Diamond", cat:"Gems", use:"Jewelry crafting; some magic gear components."},
+  {name:"Dragonstone", cat:"Gems", use:"High-tier jewelry and magic gear components."},
+
+  // Wood
+  {name:"Ash Logs", cat:"Wood", use:"Sawmill into Ash Plank; Kiln into Charcoal; general early building."},
+  {name:"Ash Plank", cat:"Wood", use:"Early-game building and crafting."},
+  {name:"Oak Logs", cat:"Wood", use:"Sawmill into Oak Plank."},
+  {name:"Oak Plank", cat:"Wood", use:"Building and crafting."},
+  {name:"Maple Logs", cat:"Wood", use:"Fishing rods, staves, bows."},
+  {name:"Yew Logs", cat:"Wood", use:"High-tier bows and staves."},
+  {name:"Blightwood", cat:"Wood", use:"Higher-tier building material."},
+  {name:"Bloodwood Sap", cat:"Wood", use:"Quest item for the Challenge Horn (Dragon Slayer questline); found in Ghornfell's Bloodblight Swamp."},
+  {name:"Magic Wood", cat:"Wood", use:"New wood type tied to Scorned Wilderness gear and recipes.", isNew:true},
+
+  // Cloth & Thread
+  {name:"Flax", cat:"Cloth & Thread", use:"Spun into Coarse Thread at the Spinning Wheel."},
+  {name:"Coarse Animal Fur", cat:"Cloth & Thread", use:"Also spins into Coarse Thread."},
+  {name:"Coarse Thread", cat:"Cloth & Thread", use:"Woven into Rough Cloth at the Loom; used directly in many early recipes."},
+  {name:"Rough Cloth", cat:"Cloth & Thread", use:"Woven into Padded Cloth; basic armor pieces."},
+  {name:"Fleece", cat:"Cloth & Thread", use:"Spun into Wool Thread at the Spinning Wheel."},
+  {name:"Wool Thread", cat:"Cloth & Thread", use:"Woven into Wool Cloth at the Loom."},
+  {name:"Wool Cloth", cat:"Cloth & Thread", use:"Woven into Padded Cloth; armor."},
+  {name:"Padded Cloth", cat:"Cloth & Thread", use:"Mid-tier armor at the Armour Bench."},
+  {name:"Mystic Fiber", cat:"Cloth & Thread", use:"Farmed from mage mobs; processed at the Advanced Spinning Wheel.", isNew:true},
+  {name:"Mystic Thread", cat:"Cloth & Thread", use:"Woven into Mystic Cloth.", isNew:true},
+  {name:"Mystic Cloth", cat:"Cloth & Thread", use:"Mystic Forge — Ascension Cores, magic gear."},
+
+  // Leather & Animal Parts
+  {name:"Animal Hide", cat:"Leather & Animal Parts", use:"Tanned into Leather at the Tannery."},
+  {name:"Animal Hide Scraps", cat:"Leather & Animal Parts", use:"Small-creature hide; needs combining before processing."},
+  {name:"Leather", cat:"Leather & Animal Parts", use:"Melee/general armor at the Armour Bench."},
+  {name:"Hard Leather", cat:"Leather & Animal Parts", use:"Reinforced armor pieces."},
+  {name:"Blue Dragon Hide", cat:"Leather & Animal Parts", use:"Tanned into Blue Dragon Leather for ranged armor."},
+  {name:"Blue Dragon Leather", cat:"Leather & Animal Parts", use:"Ranged armor."},
+  {name:"Red Dragonhide", cat:"Leather & Animal Parts", use:"Tanned into Red Dragon Leather for ranged armor."},
+  {name:"Red Dragon Leather", cat:"Leather & Animal Parts", use:"Ranged armor (raid-tier)."},
+  {name:"Black Dragonhide", cat:"Leather & Animal Parts", use:"Ranged raid-tier equivalent of Rune armor.", isNew:true},
+  {name:"Dragonwolf Hide", cat:"Leather & Animal Parts", use:"Monster-specific leather armor/items."},
+  {name:"Dire Wolf Hide", cat:"Leather & Animal Parts", use:"Monster-specific leather armor/items."},
+  {name:"Draconic Leather Scraps", cat:"Leather & Animal Parts", use:"Blast Furnace construction and upgrades."},
+  {name:"Cursed Leather", cat:"Leather & Animal Parts", use:"Mystic Forge — Ascension Cores."},
+  {name:"Animal Bone", cat:"Leather & Animal Parts", use:"Bone Pickaxe; potion ingredient."},
+  {name:"Antler", cat:"Leather & Animal Parts", use:"Potion ingredient."},
+  {name:"Small Animal Fang", cat:"Leather & Animal Parts", use:"Potion ingredient."},
+  {name:"Feathers", cat:"Leather & Animal Parts", use:"Fletching — arrow crafting."},
+
+  // Monster Parts & Dark Materials
+  {name:"Dragon Blood", cat:"Monster Parts & Dark", use:"Dragon-tier weapons and quest items."},
+  {name:"Dragon Tooth", cat:"Monster Parts & Dark", use:"Quest items, e.g. the Challenge Horn."},
+  {name:"Abyssal Ashes", cat:"Monster Parts & Dark", use:"Abyssal Whip and similar weapons."},
+  {name:"Abyssal Spine", cat:"Monster Parts & Dark", use:"Abyssal Whip and similar weapons."},
+  {name:"Ectoplasm", cat:"Monster Parts & Dark", use:"Fellhollow endgame potions/gear (requires Soulscourged status)."},
+  {name:"Cursed Essence", cat:"Monster Parts & Dark", use:"From Hellrat/Hellhound ash piles; Fellhollow crafting."},
+  {name:"Poison Ichor", cat:"Monster Parts & Dark", use:"Potion ingredient."},
+  {name:"Wild Anima", cat:"Monster Parts & Dark", use:"Runecrafting and magic-related crafting; tied to Scorned Wilderness lore."},
+
+  // Herbs
+  {name:"Marrentil", cat:"Herbs", use:"Primary potion ingredient at the Brewing Cauldron."},
+  {name:"Harralander", cat:"Herbs", use:"Primary potion ingredient."},
+  {name:"Snapdragon", cat:"Herbs", use:"Primary potion ingredient."},
+  {name:"Toadflax", cat:"Herbs", use:"Primary potion ingredient."},
+  {name:"Kwuarm", cat:"Herbs", use:"Primary potion ingredient."},
+  {name:"Irit", cat:"Herbs", use:"Primary potion ingredient."},
+  {name:"Avantoe", cat:"Herbs", use:"Primary potion ingredient."},
+
+  // Food & Crops
+  {name:"Cabbage", cat:"Food & Crops", use:"Cooking; potion secondary ingredient."},
+  {name:"Divine Cabbage", cat:"Food & Crops", use:"Cooking; higher-value potion secondary ingredient."},
+  {name:"Redberries", cat:"Food & Crops", use:"Cooking; potion secondary ingredient."},
+  {name:"Dwellberries", cat:"Food & Crops", use:"Cooking; potion secondary ingredient."},
+  {name:"Bittercap Mushroom", cat:"Food & Crops", use:"Cooking; potion ingredient."},
+  {name:"Bag of Flour", cat:"Food & Crops", use:"Bread and baked goods at the Range."},
+  {name:"Tea Leaves", cat:"Food & Crops", use:"Brewed drinks."},
+  {name:"Dried Tea Leaves", cat:"Food & Crops", use:"Brewed drinks."},
+  {name:"Raw Meat", cat:"Food & Crops", use:"Cooked at the Campfire/Range for food."},
+  {name:"Raw Fish", cat:"Food & Crops", use:"Cooked at the Campfire/Range for food."},
+
+  // Seeds
+  {name:"Ash Tree Seed", cat:"Seeds", use:"Planted in a farming plot to grow an Ash tree."},
+  {name:"Barrel Cactus Seed", cat:"Seeds", use:"Planted in a farming plot (desert regions)."},
+  {name:"Cabbage Seeds", cat:"Seeds", use:"Planted in a farming plot to grow Cabbage."},
+  {name:"Magic Tree Seed", cat:"Seeds", use:"Confirmed coming in 1.0.1 — will grow Magic Wood trees.", isNew:true},
+
+  // Fishing & Bait
+  {name:"Raw Trout", cat:"Fishing & Bait", use:"Cooking."},
+  {name:"Raw Herring", cat:"Fishing & Bait", use:"Cooking."},
+  {name:"Anchovy Bait", cat:"Fishing & Bait", use:"Equip while fishing to increase catch chance for anchovies."},
+  {name:"Animated Feather", cat:"Fishing & Bait", use:"Equip while fishing to increase catch chance for specific fish."},
+
+  // Runes
+  {name:"Rune Essence", cat:"Runes", use:"Converted into runes at the Rune Altar."},
+  {name:"Anima-infused Bark", cat:"Runes", use:"Higher-tier runecrafting."},
+  {name:"Air Rune", cat:"Runes", use:"Magic spells."},
+  {name:"Fire Rune", cat:"Runes", use:"Magic spells; also needed to build the Kiln/Furnace."},
+  {name:"Water Rune", cat:"Runes", use:"Magic spells."},
+  {name:"Earth Rune", cat:"Runes", use:"Magic spells."},
+  {name:"Astral Rune", cat:"Runes", use:"Higher-tier magic spells."},
+
+  // Vault & Ascension
+  {name:"Vault Shard", cat:"Vault & Ascension", use:"Furnace construction and other station builds."},
+  {name:"Vault Core", cat:"Vault & Ascension", use:"Blacksmith's/Fletching/Armour Bench and Mystic Forge construction."},
+  {name:"Ascension Shard", cat:"Vault & Ascension", use:"Crafted into the matching-tier Ascension Core."},
+  {name:"Ascension Core", cat:"Vault & Ascension", use:"Mystic Forge — upgrades Masterwork weapons/Vestiges between Power Levels."},
+  {name:"Amylase Crystal", cat:"Vault & Ascension", use:"Potion reagent."},
+
+  // Glass & Misc
+  {name:"Soda Ash", cat:"Glass & Misc", use:"Combined into Molten Glass for glassmaking."},
+  {name:"Molten Glass", cat:"Glass & Misc", use:"Cooled into Glass Pane."},
+  {name:"Glass Pane", cat:"Glass & Misc", use:"Windows, lanterns, decorative building pieces."},
+  {name:"Swamp Tar", cat:"Glass & Misc", use:"Processed into Adhesive at the Kiln."},
+  {name:"Adhesive", cat:"Glass & Misc", use:"Binding agent used across many crafting recipes."},
+
+  // Weapon Components
+  {name:"Adamant Crossbow Limbs", cat:"Weapon Components", use:"Assembled into an Adamant Crossbow at the Fletching Bench."},
+  {name:"Black Crossbow Limbs", cat:"Weapon Components", use:"Assembled into a Black Crossbow at the Fletching Bench."},
+];
+const DEFAULT_CHANGELOG = [];
+
+const chipsEl = document.getElementById('chips');
+const searchEl = document.getElementById('search');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const resultsEl = document.getElementById('results');
+const countEl = document.getElementById('count');
+const statsEl = document.getElementById('stats');
+const sortSelect = document.getElementById('sortSelect');
+const addBtn = document.getElementById('addBtn');
+const resetBtn = document.getElementById('resetBtn');
+const saveFileBtn = document.getElementById('saveFileBtn');
+const shareFileBtn = document.getElementById('shareFileBtn');
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
+const importInput = document.getElementById('importInput');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalTitle = document.getElementById('modalTitle');
+const itemForm = document.getElementById('itemForm');
+const fName = document.getElementById('fName');
+const fCat = document.getElementById('fCat');
+const newCatField = document.getElementById('newCatField');
+const fNewCat = document.getElementById('fNewCat');
+const fUse = document.getElementById('fUse');
+const fNew = document.getElementById('fNew');
+const modalError = document.getElementById('modalError');
+const cancelBtn = document.getElementById('cancelBtn');
+const saveBtn = document.getElementById('saveBtn');
+const themeBtn = document.getElementById('themeBtn');
+const toastEl = document.getElementById('toast');
+const importModalBackdrop = document.getElementById('importModalBackdrop');
+const dupListEl = document.getElementById('dupList');
+const importSummaryEl = document.getElementById('importSummary');
+const importCancelBtn = document.getElementById('importCancelBtn');
+const importApplyBtn = document.getElementById('importApplyBtn');
+const changelogBtn = document.getElementById('changelogBtn');
+const changelogModalBackdrop = document.getElementById('changelogModalBackdrop');
+const changelogListEl = document.getElementById('changelogList');
+const clearChangelogBtn = document.getElementById('clearChangelogBtn');
+const closeChangelogBtn = document.getElementById('closeChangelogBtn');
+const editorBtn = document.getElementById('editorBtn');
+const editModeBtn = document.getElementById('editModeBtn');
+
+const STORAGE_KEY = 'dragonwilds-materials-v1';
+const THEME_KEY = 'dragonwilds-theme';
+const CHANGELOG_KEY = 'dragonwilds-changelog-v1';
+const EDITOR_KEY = 'dragonwilds-editor-name';
+const EDIT_MODE_KEY = 'dragonwilds-edit-mode';
+const NEW_CAT_VALUE = '__new__';
+let items = loadItems();
+let activeCat = 'All';
+let editingId = null;
+let lastDeleted = null;
+let toastTimer = null;
+let modalPreviousFocus = null;
+let pendingImport = null;
+let changelog = loadChangelog();
+let editMode = localStorage.getItem(EDIT_MODE_KEY) === 'on';
+
+function normalizeName(name) {
+  return String(name || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function slugify(name) {
+  return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+function withUniqueIds(arr) {
+  const seen = new Map();
+  return arr.map(d => {
+    const base = d.id || slugify(d.name) || 'item';
+    let id = base, n = 2;
+    while (seen.has(id)) { id = base + '-' + n; n++; }
+    seen.set(id, true);
+    return { ...d, id };
+  });
+}
+function loadItems() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return withUniqueIds(JSON.parse(raw));
+  } catch (e) {}
+  return withUniqueIds(DEFAULT_DATA);
+}
+function saveItems() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+  catch (e) { showToast('Could not save changes in this browser.'); }
+}
+
+// ---- Editor identity ----
+function getEditorName() { return localStorage.getItem(EDITOR_KEY) || ''; }
+function setEditorName(name) { localStorage.setItem(EDITOR_KEY, name.trim() || 'Anonymous'); renderEditorBadge(); }
+function ensureEditorName() {
+  let name = getEditorName();
+  if (!name) {
+    name = (prompt('Name to attach to your changes (shown in the changelog):', '') || 'Anonymous').trim() || 'Anonymous';
+    setEditorName(name);
+  }
+  return name;
+}
+function renderEditorBadge() {
+  const name = getEditorName() || 'not set';
+  editorBtn.innerHTML = `Editing as <strong>${escapeHtml(name)}</strong>`;
+}
+
+// ---- Changelog ----
+function loadChangelog() {
+  try { const raw = localStorage.getItem(CHANGELOG_KEY); if (raw) return JSON.parse(raw); }
+  catch (e) {}
+  return DEFAULT_CHANGELOG.slice();
+}
+function saveChangelog() {
+  try { localStorage.setItem(CHANGELOG_KEY, JSON.stringify(changelog.slice(-400))); }
+  catch (e) {}
+}
+function logChange(action, itemName, detail) {
+  changelog.push({ ts: Date.now(), action, itemName, editor: getEditorName() || 'Anonymous', detail: detail || '' });
+  saveChangelog();
+}
+function diffSummary(before, after) {
+  const parts = [];
+  if (before.name !== after.name) parts.push(`name: "${before.name}" → "${after.name}"`);
+  if (before.cat !== after.cat) parts.push(`category: "${before.cat}" → "${after.cat}"`);
+  if (before.use !== after.use) parts.push(`use: "${before.use}" → "${after.use}"`);
+  if (!!before.isNew !== !!after.isNew) parts.push(`NEW tag: ${before.isNew ? 'Yes' : 'No'} → ${after.isNew ? 'Yes' : 'No'}`);
+  return parts.join('; ');
+}
+function fmtTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+function renderChangelog() {
+  if (!changelog.length) { changelogListEl.innerHTML = '<div class="changelog-empty">No changes logged yet.</div>'; return; }
+  const sorted = [...changelog].sort((a, b) => b.ts - a.ts);
+  changelogListEl.innerHTML = sorted.map(entry => `
+    <div class="changelog-entry">
+      <div class="changelog-entry-head">
+        <span><span class="changelog-action act-${entry.action}">${entry.action[0].toUpperCase() + entry.action.slice(1)}</span> — ${escapeHtml(entry.itemName)}</span>
+        <span class="changelog-meta">${escapeHtml(entry.editor)} · ${fmtTime(entry.ts)}</span>
+      </div>
+      ${entry.detail ? `<div class="changelog-detail">${escapeHtml(entry.detail)}</div>` : ''}
+    </div>`).join('');
+}
+function openChangelogModal() { renderChangelog(); changelogModalBackdrop.classList.add('open'); changelogModalBackdrop.setAttribute('aria-hidden', 'false'); }
+function closeChangelogModal() { changelogModalBackdrop.classList.remove('open'); changelogModalBackdrop.setAttribute('aria-hidden', 'true'); }
+
+// ---- Edit mode ----
+function applyEditMode() {
+  document.body.classList.toggle('edit-mode', editMode);
+  editModeBtn.textContent = 'Edit mode: ' + (editMode ? 'On' : 'Off');
+  editModeBtn.setAttribute('aria-pressed', editMode ? 'true' : 'false');
+}
+function toggleEditMode() {
+  editMode = !editMode;
+  localStorage.setItem(EDIT_MODE_KEY, editMode ? 'on' : 'off');
+  applyEditMode();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = String(str ?? '');
+  return div.innerHTML;
+}
+function getCategories() { return ['All', ...new Set(items.map(d => d.cat))]; }
+function getFilteredItems() {
+  const q = searchEl.value.trim().toLowerCase();
+  const filtered = items.filter(d => {
+    const matchesCat = activeCat === 'All' || d.cat === activeCat;
+    const haystack = `${d.name} ${d.use} ${d.cat}`.toLowerCase();
+    return matchesCat && (!q || haystack.includes(q));
+  });
+  const sort = sortSelect.value;
+  return filtered.sort((a,b) => {
+    if (sort === 'name-desc') return b.name.localeCompare(a.name);
+    if (sort === 'category') return a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name);
+    if (sort === 'new') return Number(!!b.isNew) - Number(!!a.isNew) || a.name.localeCompare(b.name);
+    return a.name.localeCompare(b.name);
+  });
+}
+function renderStats() {
+  const newCount = items.filter(d => d.isNew).length;
+  statsEl.innerHTML = `<span class="stat"><strong>${items.length}</strong> materials</span><span class="stat"><strong>${getCategories().length - 1}</strong> categories</span>${newCount ? `<span class="stat"><strong>${newCount}</strong> NEW 1.0</span>` : ''}`;
+}
+function renderChips() {
+  chipsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip' + (cat === activeCat ? ' active' : '');
+    chip.textContent = cat;
+    chip.setAttribute('role', 'tab');
+    chip.setAttribute('aria-selected', cat === activeCat ? 'true' : 'false');
+    chip.onclick = () => { activeCat = cat; renderAll(); updateUrlState(); };
+    chipsEl.appendChild(chip);
+  });
+}
+function renderResults() {
+  const filtered = getFilteredItems();
+  const q = searchEl.value.trim();
+  countEl.textContent = q || activeCat !== 'All' ? `${filtered.length} of ${items.length} materials` : `${filtered.length} material${filtered.length === 1 ? '' : 's'}`;
+  if (!filtered.length) {
+    resultsEl.innerHTML = `<div class="empty"><strong>No materials found</strong><span>Try a different search or clear the current filters.</span><br><button type="button" class="btn-small" id="emptyClear">Clear filters</button></div>`;
+    document.getElementById('emptyClear').onclick = clearFilters;
+    return;
+  }
+  resultsEl.innerHTML = filtered.map(d => `
+    <article class="item" data-id="${escapeHtml(d.id)}">
+      <div class="item-head">
+        <div class="item-name">${escapeHtml(d.name)}${d.isNew ? '<span class="new-tag">NEW 1.0</span>' : ''}</div>
+        <div class="item-cat">${escapeHtml(d.cat)}</div>
+      </div>
+      <div class="item-use">${escapeHtml(d.use)}</div>
+      <div class="item-actions">
+        <button class="btn-small" type="button" data-copy="${escapeHtml(d.id)}">Copy</button>
+        <button class="btn-small" type="button" data-edit="${escapeHtml(d.id)}">Edit</button>
+        <button class="btn-small btn-danger" type="button" data-delete="${escapeHtml(d.id)}">Delete</button>
+      </div>
+    </article>`).join('');
+  resultsEl.querySelectorAll('[data-copy]').forEach(btn => btn.onclick = () => copyItem(btn.dataset.copy));
+  resultsEl.querySelectorAll('[data-edit]').forEach(btn => btn.onclick = () => openEditModal(btn.dataset.edit));
+  resultsEl.querySelectorAll('[data-delete]').forEach(btn => btn.onclick = () => deleteItem(btn.dataset.delete));
+}
+function renderAll() { renderStats(); renderChips(); renderResults(); clearSearchBtn.hidden = !searchEl.value; }
+function clearFilters() { searchEl.value = ''; activeCat = 'All'; sortSelect.value = 'name'; renderAll(); updateUrlState(); searchEl.focus(); }
+
+function populateCatSelect(selected) {
+  const cats = [...new Set(items.map(d => d.cat))].sort((a,b) => a.localeCompare(b));
+  fCat.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') + `<option value="${NEW_CAT_VALUE}">+ New category…</option>`;
+  if (selected && cats.includes(selected)) fCat.value = selected;
+  else if (selected) { fCat.value = NEW_CAT_VALUE; fNewCat.value = selected; }
+  newCatField.style.display = fCat.value === NEW_CAT_VALUE ? 'block' : 'none';
+}
+function showModalError(message) { modalError.textContent = message; modalError.style.display = 'block'; }
+function clearModalError() { modalError.textContent = ''; modalError.style.display = 'none'; }
+function openModal() {
+  modalPreviousFocus = document.activeElement;
+  modalBackdrop.classList.add('open');
+  modalBackdrop.setAttribute('aria-hidden', 'false');
+  fName.focus();
+}
+function openAddModal() {
+  editingId = null; modalTitle.textContent = 'Add Material'; saveBtn.textContent = 'Add Material';
+  fName.value = ''; fUse.value = ''; fNew.checked = false; fNewCat.value = '';
+  populateCatSelect(activeCat !== 'All' ? activeCat : ''); clearModalError(); openModal();
+}
+function openEditModal(id) {
+  const d = items.find(x => x.id === id); if (!d) return;
+  editingId = id; modalTitle.textContent = 'Edit Material'; saveBtn.textContent = 'Save Changes';
+  fName.value = d.name; fUse.value = d.use; fNew.checked = !!d.isNew; fNewCat.value = '';
+  populateCatSelect(d.cat); clearModalError(); openModal();
+}
+function closeModal() {
+  modalBackdrop.classList.remove('open'); modalBackdrop.setAttribute('aria-hidden', 'true'); clearModalError();
+  if (modalPreviousFocus && document.contains(modalPreviousFocus)) modalPreviousFocus.focus();
+}
+function deleteItem(id) {
+  const index = items.findIndex(x => x.id === id); if (index < 0) return;
+  lastDeleted = { item: items[index], index };
+  ensureEditorName();
+  items.splice(index, 1); saveItems(); renderAll();
+  logChange('deleted', lastDeleted.item.name, `category: ${lastDeleted.item.cat}`);
+  showToast(`Deleted “${lastDeleted.item.name}”. <button type="button" id="undoDelete">Undo</button>`);
+  document.getElementById('undoDelete').onclick = () => {
+    if (!lastDeleted) return; items.splice(Math.min(lastDeleted.index, items.length), 0, lastDeleted.item); lastDeleted = null; saveItems(); renderAll(); hideToast();
+  };
+}
+async function copyItem(id) {
+  const d = items.find(x => x.id === id); if (!d) return;
+  const text = `${d.name} — ${d.cat}\n${d.use}${d.isNew ? '\nNEW 1.0' : ''}`;
+  try { await navigator.clipboard.writeText(text); showToast(`Copied “${d.name}”.`); }
+  catch (e) { showToast('Clipboard access was blocked by the browser.'); }
+}
+function plainItems() { return items.map(({name, cat, use, isNew}) => isNew ? {name, cat, use, isNew} : {name, cat, use}); }
+function makeUpdatedFile() {
+  const dataBlock = 'const DEFAULT_DATA = ' + JSON.stringify(plainItems(), null, 2) + ';';
+  const changelogBlock = 'const DEFAULT_CHANGELOG = ' + JSON.stringify(changelog.slice(-400), null, 2) + ';';
+  const currentHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  let updatedHtml = currentHtml.replace(/const DEFAULT_DATA = \[[\s\S]*?\];/, dataBlock);
+  updatedHtml = updatedHtml.replace(/const DEFAULT_CHANGELOG = \[[\s\S]*?\];/, changelogBlock);
+  return new Blob([updatedHtml], { type: 'text/html' });
+}
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function saveUpdatedFile() { downloadBlob(makeUpdatedFile(), 'dragonwilds-materials.html'); showToast('Saved an updated standalone HTML file.'); }
+async function shareUpdatedFile() {
+  const blob = makeUpdatedFile();
+  if (navigator.share && window.File) {
+    try { const file = new File([blob], 'dragonwilds-materials.html', {type:'text/html'}); await navigator.share({title:'Dragonwilds Material Finder', text:'Updated Dragonwilds Material Finder', files:[file]}); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  downloadBlob(blob, 'dragonwilds-materials.html'); showToast('Sharing is not supported here, so the updated file was downloaded instead.');
+}
+function exportJson() { downloadBlob(new Blob([JSON.stringify(plainItems(), null, 2)], {type:'application/json'}), 'dragonwilds-materials.json'); showToast('Exported your materials as JSON.'); }
+function importJson(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try { parsed = JSON.parse(reader.result); if (!Array.isArray(parsed)) throw new Error(); }
+    catch (e) { alert('That file is not a valid materials JSON export (expected a JSON array of items).'); importInput.value=''; return; }
+    const valid = parsed.filter(d => d && typeof d.name === 'string' && typeof d.cat === 'string' && typeof d.use === 'string');
+    if (!valid.length) { alert('No valid materials found. Each entry needs a name, cat, and use.'); importInput.value=''; return; }
+
+    const mode = confirm(`Found ${valid.length} material(s).\n\nOK = MERGE with your current list (you'll get to review any duplicates).\nCancel = REPLACE your current list entirely.`) ? 'merge' : 'replace';
+
+    if (mode === 'replace') {
+      if (!confirm('This will replace your entire current list. Continue?')) { importInput.value=''; return; }
+      ensureEditorName();
+      items = withUniqueIds(valid);
+      saveItems();
+      logChange('import', 'All materials', `Replaced entire list via JSON import (${valid.length} material(s)).`);
+      activeCat='All'; searchEl.value=''; renderAll(); updateUrlState(); importInput.value='';
+      showToast(`Replaced your list with ${valid.length} imported material(s).`);
+      return;
+    }
+
+    // Merge mode: match by normalized name (case/space/punctuation-insensitive)
+    const duplicates = [];
+    const newOnes = [];
+    let identicalCount = 0;
+    valid.forEach(incoming => {
+      const match = items.find(x => normalizeName(x.name) === normalizeName(incoming.name));
+      if (!match) { newOnes.push(incoming); return; }
+      const isIdentical = match.name === incoming.name
+        && match.cat === incoming.cat
+        && match.use === incoming.use
+        && !!match.isNew === !!incoming.isNew;
+      if (isIdentical) { identicalCount++; return; } // nothing to do, existing already matches exactly
+      duplicates.push({ existingId: match.id, existing: { ...match }, incoming, resolution: 'keep', edited: null });
+    });
+
+    if (!duplicates.length) {
+      ensureEditorName();
+      items = withUniqueIds([...items, ...newOnes]);
+      saveItems();
+      newOnes.forEach(d => logChange('added', d.name, 'via JSON import'));
+      activeCat='All'; searchEl.value=''; renderAll(); updateUrlState();
+      const parts = [`${newOnes.length} new material${newOnes.length===1?'':'s'} merged`];
+      if (identicalCount) parts.push(`${identicalCount} already identical (skipped)`);
+      showToast(parts.join(', ') + '.');
+      importInput.value='';
+      return;
+    }
+
+    pendingImport = { newOnes, duplicates, identicalCount };
+    openImportResolveModal();
+  };
+  reader.readAsText(file);
+}
+
+function openImportResolveModal() {
+  renderDupList();
+  importModalBackdrop.classList.add('open');
+  importModalBackdrop.setAttribute('aria-hidden', 'false');
+}
+function closeImportResolveModal() {
+  importModalBackdrop.classList.remove('open');
+  importModalBackdrop.setAttribute('aria-hidden', 'true');
+}
+
+function renderDupList() {
+  const { newOnes, duplicates, identicalCount } = pendingImport;
+  importSummaryEl.innerHTML = `${newOnes.length} new material${newOnes.length===1?'':'s'} will be added automatically`
+    + (identicalCount ? `, ${identicalCount} already identical (no action needed)` : '') + `. `
+    + `${duplicates.length} name match${duplicates.length===1?'':'es'} with real differences — pick what to keep for each. `
+    + `<span class="dup-diff-old">red</span> = existing, <span class="dup-diff-new">green</span> = imported.`;
+
+  dupListEl.innerHTML = duplicates.map((dup, i) => {
+    const nameDiff = dup.existing.name !== dup.incoming.name;
+    const catDiff = dup.existing.cat !== dup.incoming.cat;
+    const useDiff = dup.existing.use !== dup.incoming.use;
+    const newDiff = !!dup.existing.isNew !== !!dup.incoming.isNew;
+
+    if (dup.resolution === 'edit') {
+      const base = dup.edited || dup.existing;
+      return `
+      <div class="dup-row" data-i="${i}">
+        <div class="dup-row-head">${escapeHtml(dup.existing.name)}</div>
+        <div class="dup-edit-fields">
+          <div><label>Name</label><input type="text" data-field="name" data-i="${i}" value="${escapeHtml(base.name)}"></div>
+          <div><label>Category</label><input type="text" data-field="cat" data-i="${i}" value="${escapeHtml(base.cat)}"></div>
+          <div><label>Use</label><textarea data-field="use" data-i="${i}">${escapeHtml(base.use)}</textarea></div>
+          <div class="field-check"><input type="checkbox" data-field="isNew" data-i="${i}" ${base.isNew ? 'checked' : ''}><label>Mark as NEW 1.0</label></div>
+          <p class="field-hint">Existing said: "${escapeHtml(dup.existing.use)}"${useDiff ? ` — Imported said: "${escapeHtml(dup.incoming.use)}"` : ''}</p>
+          <div class="dup-actions">
+            <button type="button" class="btn-small" data-act="revert" data-i="${i}">Back to comparison</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    return `
+    <div class="dup-row" data-i="${i}">
+      <div class="dup-row-head">${escapeHtml(dup.existing.name)}</div>
+      <dl class="dup-compare">
+        <dt>Name</dt><dd>${nameDiff ? `<span class="dup-diff-old">${escapeHtml(dup.existing.name)}</span><span class="dup-arrow">→</span><span class="dup-diff-new">${escapeHtml(dup.incoming.name)}</span>` : escapeHtml(dup.existing.name)}</dd>
+        <dt>Category</dt><dd>${catDiff ? `<span class="dup-diff-old">${escapeHtml(dup.existing.cat)}</span><span class="dup-arrow">→</span><span class="dup-diff-new">${escapeHtml(dup.incoming.cat)}</span>` : escapeHtml(dup.existing.cat)}</dd>
+        <dt>Use</dt><dd>${useDiff ? `<span class="dup-diff-old-block"><b>Existing</b>${escapeHtml(dup.existing.use)}</span><span class="dup-diff-new-block"><b>Imported</b>${escapeHtml(dup.incoming.use)}</span>` : escapeHtml(dup.existing.use)}</dd>
+        <dt>NEW tag</dt><dd>${newDiff ? `<span class="dup-diff-old">${dup.existing.isNew ? 'Yes' : 'No'}</span><span class="dup-arrow">→</span><span class="dup-diff-new">${dup.incoming.isNew ? 'Yes' : 'No'}</span>` : (dup.existing.isNew ? 'Yes' : 'No')}</dd>
+      </dl>
+      <div class="dup-actions">
+        <button type="button" class="btn-small btn-keep ${dup.resolution === 'keep' ? 'active' : ''}" data-act="keep" data-i="${i}">Keep existing</button>
+        <button type="button" class="btn-small btn-imported ${dup.resolution === 'imported' ? 'active' : ''}" data-act="imported" data-i="${i}">Use imported</button>
+        <button type="button" class="btn-small" data-act="edit" data-i="${i}">Edit / merge manually</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  dupListEl.querySelectorAll('[data-act]').forEach(btn => {
+    btn.onclick = () => handleDupAction(btn.dataset.act, Number(btn.dataset.i));
+  });
+  dupListEl.querySelectorAll('[data-field]').forEach(el => {
+    const i = Number(el.dataset.i);
+    const field = el.dataset.field;
+    const handler = () => {
+      const dup = pendingImport.duplicates[i];
+      if (!dup.edited) dup.edited = { ...dup.existing };
+      dup.edited[field] = field === 'isNew' ? el.checked : el.value;
+    };
+    el.addEventListener(field === 'isNew' ? 'change' : 'input', handler);
+  });
+}
+
+function handleDupAction(act, i) {
+  const dup = pendingImport.duplicates[i];
+  if (act === 'keep') dup.resolution = 'keep';
+  else if (act === 'imported') dup.resolution = 'imported';
+  else if (act === 'edit') { dup.resolution = 'edit'; dup.edited = dup.edited || { ...dup.existing }; }
+  else if (act === 'revert') { dup.resolution = 'keep'; }
+  renderDupList();
+}
+
+function applyImportResolutions() {
+  if (!pendingImport) return;
+  ensureEditorName();
+  const { newOnes, duplicates, identicalCount } = pendingImport;
+  let updated = 0;
+  duplicates.forEach(dup => {
+    const target = items.find(x => x.id === dup.existingId);
+    if (!target) return;
+    if (dup.resolution === 'imported') {
+      const before = { name: target.name, cat: target.cat, use: target.use, isNew: target.isNew };
+      target.name = dup.incoming.name; target.cat = dup.incoming.cat; target.use = dup.incoming.use; target.isNew = !!dup.incoming.isNew;
+      const detail = diffSummary(before, target);
+      if (detail) logChange('edited', target.name, `${detail} (used imported version)`);
+      updated++;
+    } else if (dup.resolution === 'edit' && dup.edited) {
+      const name = String(dup.edited.name || '').trim();
+      const cat = String(dup.edited.cat || '').trim();
+      const use = String(dup.edited.use || '').trim();
+      if (!name || !cat || !use) return; // skip incomplete manual edits, leaves existing untouched
+      const before = { name: target.name, cat: target.cat, use: target.use, isNew: target.isNew };
+      target.name = name; target.cat = cat; target.use = use; target.isNew = !!dup.edited.isNew;
+      const detail = diffSummary(before, target);
+      if (detail) logChange('edited', target.name, `${detail} (manually merged)`);
+      updated++;
+    }
+  });
+  items = withUniqueIds([...items, ...newOnes]);
+  saveItems();
+  newOnes.forEach(d => logChange('added', d.name, 'via JSON import'));
+  const kept = duplicates.length - updated;
+  activeCat = 'All'; searchEl.value = ''; renderAll(); updateUrlState();
+  const parts = [`${newOnes.length} new`, `${updated} updated`, `${kept} kept as-is`];
+  if (identicalCount) parts.push(`${identicalCount} already identical`);
+  showToast(`Merged: ${parts.join(', ')}.`);
+  closeImportResolveModal();
+  importInput.value = '';
+  pendingImport = null;
+}
+function showToast(message) { clearTimeout(toastTimer); toastEl.innerHTML = message; toastEl.classList.add('show'); toastTimer = setTimeout(hideToast, 4200); }
+function hideToast() { toastEl.classList.remove('show'); clearTimeout(toastTimer); }
+function applyTheme(theme) {
+  if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+  else delete document.documentElement.dataset.theme;
+  localStorage.setItem(THEME_KEY, theme);
+  themeBtn.textContent = theme === 'dark' ? '☀' : theme === 'light' ? '☾' : '◐';
+  themeBtn.title = `Theme: ${theme === 'system' ? 'system' : theme}. Click to change`;
+  themeBtn.setAttribute('aria-label', themeBtn.title);
+}
+function cycleTheme() {
+  const current = localStorage.getItem(THEME_KEY) || 'system';
+  applyTheme(current === 'system' ? 'dark' : current === 'dark' ? 'light' : 'system');
+}
+function updateUrlState() {
+  try {
+    const params = new URLSearchParams();
+    if (searchEl.value.trim()) params.set('q', searchEl.value.trim());
+    if (activeCat !== 'All') params.set('cat', activeCat);
+    if (sortSelect.value !== 'name') params.set('sort', sortSelect.value);
+    const hash = params.toString(); history.replaceState(null, '', params.toString() ? '#' + params.toString() : location.pathname + location.search);
+  } catch (e) {}
+}
+function loadUrlState() {
+  try {
+    const params = new URLSearchParams(location.hash.slice(1));
+    searchEl.value = params.get('q') || '';
+    const cat = params.get('cat'); if (cat && getCategories().includes(cat)) activeCat = cat;
+    const sort = params.get('sort'); if (['name','name-desc','category','new'].includes(sort)) sortSelect.value = sort;
+  } catch (e) {}
+}
+
+fCat.addEventListener('change', () => { newCatField.style.display = fCat.value === NEW_CAT_VALUE ? 'block' : 'none'; if (fCat.value === NEW_CAT_VALUE) fNewCat.focus(); });
+itemForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = fName.value.trim();
+  const cat = fCat.value === NEW_CAT_VALUE ? fNewCat.value.trim() : fCat.value.trim();
+  const use = fUse.value.trim();
+  const isNew = fNew.checked;
+  if (!name || !cat || !use) { showModalError('Please fill in the name, category, and description.'); return; }
+  const duplicate = items.find(x => x.id !== editingId && normalizeName(x.name) === normalizeName(name));
+  if (duplicate && !confirm(`“${duplicate.name}” already exists in “${duplicate.cat}”. Save this one anyway?`)) { showModalError(`A material named “${duplicate.name}” already exists.`); return; }
+  ensureEditorName();
+  if (editingId) {
+    const d = items.find(x => x.id === editingId);
+    const before = { name: d.name, cat: d.cat, use: d.use, isNew: d.isNew };
+    d.name=name; d.cat=cat; d.use=use; d.isNew=isNew;
+    const detail = diffSummary(before, d);
+    if (detail) logChange('edited', d.name, detail);
+  } else {
+    items = withUniqueIds([...items, {name, cat, use, isNew}]);
+    logChange('added', name, `category: ${cat}`);
+  }
+  saveItems(); closeModal(); renderAll(); updateUrlState(); showToast(editingId ? 'Material updated.' : 'Material added.');
+});
+
+addBtn.onclick = openAddModal;
+cancelBtn.onclick = closeModal;
+modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) closeModal(); });
+resetBtn.onclick = () => { if (!confirm('Reset all materials to the original launch list? Your added/edited entries will be lost.')) return; ensureEditorName(); items=withUniqueIds(DEFAULT_DATA); saveItems(); logChange('reset', 'All materials', 'Reset entire list to the original launch defaults.'); activeCat='All'; searchEl.value=''; renderAll(); updateUrlState(); showToast('Reset to defaults.'); };
+saveFileBtn.onclick = saveUpdatedFile;
+shareFileBtn.onclick = shareUpdatedFile;
+exportBtn.onclick = exportJson;
+importBtn.onclick = () => importInput.click();
+importInput.onchange = () => { const file=importInput.files[0]; if(file) importJson(file); };
+importApplyBtn.onclick = applyImportResolutions;
+importCancelBtn.onclick = () => { closeImportResolveModal(); importInput.value=''; pendingImport=null; showToast('Import cancelled.'); };
+importModalBackdrop.addEventListener('click', e => { if (e.target === importModalBackdrop) importCancelBtn.click(); });
+searchEl.addEventListener('input', () => { renderResults(); clearSearchBtn.hidden=!searchEl.value; updateUrlState(); });
+clearSearchBtn.onclick = () => { searchEl.value=''; renderResults(); clearSearchBtn.hidden=true; updateUrlState(); searchEl.focus(); };
+sortSelect.addEventListener('change', () => { renderResults(); updateUrlState(); });
+themeBtn.onclick = cycleTheme;
+changelogBtn.onclick = openChangelogModal;
+closeChangelogBtn.onclick = closeChangelogModal;
+changelogModalBackdrop.addEventListener('click', e => { if (e.target === changelogModalBackdrop) closeChangelogModal(); });
+clearChangelogBtn.onclick = () => { if (!confirm('Clear the entire changelog? This cannot be undone.')) return; changelog = []; saveChangelog(); renderChangelog(); showToast('Changelog cleared.'); };
+editorBtn.onclick = () => { const current = getEditorName(); const name = prompt('Name to attach to your changes:', current); if (name !== null) setEditorName(name); };
+editModeBtn.onclick = toggleEditMode;
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== searchEl && !modalBackdrop.classList.contains('open') && !importModalBackdrop.classList.contains('open')) { e.preventDefault(); searchEl.focus(); }
+  if (e.key === 'Escape' && modalBackdrop.classList.contains('open')) closeModal();
+  if (e.key === 'Escape' && importModalBackdrop.classList.contains('open')) importCancelBtn.click();
+  if (e.key === 'Escape' && changelogModalBackdrop.classList.contains('open')) closeChangelogModal();
+});
+window.addEventListener('popstate', () => { loadUrlState(); renderAll(); });
+
+applyTheme(localStorage.getItem(THEME_KEY) || 'system');
+renderEditorBadge();
+applyEditMode();
+loadUrlState();
+renderAll();
+</script>
+</body>
+</html>
