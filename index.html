@@ -79,11 +79,11 @@
   .badge-count { display: inline-block; min-width: 16px; padding: 0 4px; margin-left: 4px; border-radius: 999px; background: var(--new); color: #fff; font-size: .68rem; line-height: 16px; text-align: center; }
   .badge-count[hidden] { display: none; }
   .changelog-launch { margin: 4px 0 0; }
-  .item-suggest { margin-top: 7px; }
+  .item-suggest { margin-top: 7px; display: flex; gap: 5px; flex-wrap: wrap; }
   .version-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; padding: 9px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--text); font-size: .82rem; }
   .version-banner[hidden] { display: none; }
   .version-banner .btn-small { margin-left: auto; }
-  .suggest-fix-btn { padding: 3px 8px; font-size: .7rem; color: var(--text-dim); background: transparent; border-color: transparent; }
+  .suggest-fix-btn { display: inline-block; padding: 3px 8px; font-size: .7rem; color: var(--text-dim); background: transparent; border-color: transparent; text-decoration: none; }
   .suggest-fix-btn:hover { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
   .chip { flex: 0 0 auto; padding: 6px 11px; border-radius: 999px; background: var(--accent-soft); color: var(--text); font-size: .78rem; cursor: pointer; border: 1px solid transparent; user-select: none; white-space: nowrap; }
   .chip:hover { border-color: var(--accent); }
@@ -1463,6 +1463,61 @@ const DEFAULT_DATA = [
 
   // Trophies & Vanity - additional
   {name:"Commemorative Coin", cat:"Trophies & Vanity", station:"N/A (Trophy Chest)", use:"Rare drop from Red Dragons in Umbral Sands; a vestige that unlocks the Amulet of Glory recipe at the Jewelry Bench."},
+
+  // Tools - additional (Farming, starter tiers)
+  {name:"Iron Secateurs", cat:"Tools", station:"Farming Plot", use:"Farming tool; provides a 1.25x yield multiplier when harvesting crops."},
+  {name:"Compost Bucket", cat:"Tools", station:"Farming Plot", use:"Crafted at the crafting table (needs Farming level 10); carries compost or super compost from a compost bin to farming plots."},
+  {name:"Wooden Spade", cat:"Tools", station:"N/A (Starter Tier)", use:"Primitive starter-tier spade for digging and farming actions."},
+  {name:"Wooden Watering Can", cat:"Tools", station:"N/A (Starter Tier)", use:"Primitive starter-tier watering can; waters farming plots to speed up crop growth."},
+  {name:"Undead Spade", cat:"Tools", station:"N/A (Loot)", use:"A specialty spade variant used for digging and farming actions."},
+
+  // Runes / Runecrafting - Wardstones and Magic
+  {name:"Small Wardstone", cat:"Runes", station:"Rune Altar", use:"Recharges armour with lifeward when activated; inflicts Soulscourge on the user. Smallest/weakest tier."},
+  {name:"Medium Wardstone", cat:"Runes", station:"Rune Altar", use:"Recharges armour with lifeward when activated; inflicts Soulscourge on the user. Mid tier."},
+  {name:"Large Wardstone", cat:"Runes", station:"Rune Altar", use:"Recharges armour with 90 lifeward in one second when activated; inflicts 25 Soulscourge on the user."},
+  {name:"Magical Focus", cat:"Weapons & Armor", station:"N/A (Magic Skill Unlock)", use:"Unlocked at Magic level 39; imbues an equipped staff with a 15% damage multiplier for 10 minutes, stackable with a Lesser Magic Potion for a bonus critical-hit chance."},
+
+  // Trophies & Vanity - additional colour variant
+  {name:"Yellow Torch", cat:"Trophies & Vanity", station:"N/A (Trophy Chest)", use:"Cosmetic colour-variant item; a dye, event, or cosmetic-shop reward."},
+
+  // Scorned Wilderness (1.0) - new crafting chain
+  {name:"Luminite Ore", cat:"Ores & Bars", station:"Furnace / Blast Furnace", use:"Mined in the Scorned Wilderness; smelted with Runite Ore into Rune Bar.", isNew:true},
+  {name:"Rune Bar", cat:"Ores & Bars", station:"Furnace / Blast Furnace", use:"Smelted from Runite Ore, Luminite Ore, and Fuel Pellets at the Blast Furnace; base material for Rune-tier gear.", isNew:true},
+  {name:"Runic Powder", cat:"Stone & Earth", station:"Grindstone", use:"Ground at the Grindstone; a reagent for high-tier crafting recipes.", isNew:true},
+  {name:"Ground Rune Essence", cat:"Runes", station:"Grindstone", use:"Ground from Rune Essence at the Grindstone; used in Vis Fibres, Draconic Vis Wax, and Black Dragon Leather.", isNew:true},
+  {name:"Ground Dragon Tooth", cat:"Monster Parts & Dark", station:"Grindstone", use:"Ground from Dragon Tooth at the Grindstone; used only in Draconic Vis Wax.", isNew:true},
+  {name:"Discordant Residue", cat:"Monster Parts & Dark", station:"N/A (Scorned Wilderness Loot)", use:"Dropped by enemies in the Scorned Wilderness; fired into Harmonised Compound at the Kiln.", isNew:true},
+  {name:"Harmonised Compound", cat:"Glass & Misc", station:"Kiln", use:"Fired from Discordant Residue at the Kiln; unlocks the Advanced Spinning Wheel and gates the Vis cloth line.", isNew:true},
+  {name:"Vis Fibres", cat:"Cloth & Thread", station:"Advanced Spinning Wheel", use:"Spun from Harmonised Compound and Ground Rune Essence; combined with Draconic Vis Wax into Vis Cloth.", isNew:true},
+  {name:"Draconic Vis Wax", cat:"Cloth & Thread", station:"Brewing Cauldron", use:"Brewed from Harmonised Compound, Ground Rune Essence, and Ground Dragon Tooth; combined with Vis Fibres into Vis Cloth.", isNew:true},
+  {name:"Vis Cloth", cat:"Cloth & Thread", station:"Loom", use:"Woven from Vis Fibres and Draconic Vis Wax; unlocks the Ancestral magic gear set.", isNew:true},
+  {name:"Black Dragon Leather", cat:"Leather & Animal Parts", station:"Tannery", use:"Tanned from Black Dragonhide, Dragon Blood, and Ground Rune Essence; unlocks the Rune Shield recipe.", isNew:true},
+
+  // Dragon-tier gear (above Rune) and related armor
+  {name:"Dragon Med Helm", cat:"Weapons & Armor", station:"Blacksmith's", use:"Dragon-tier head armor; the top smithing tier.", isNew:true},
+  {name:"Dragon Full Helm", cat:"Weapons & Armor", station:"Blacksmith's", use:"Dragon-tier head armor; the top smithing tier.", isNew:true},
+  {name:"Dragon Platebody", cat:"Weapons & Armor", station:"Blacksmith's", use:"Dragon-tier body armor; the top smithing tier.", isNew:true},
+  {name:"Dragon Platelegs", cat:"Weapons & Armor", station:"Blacksmith's", use:"Dragon-tier leg armor; the top smithing tier.", isNew:true},
+  {name:"Dragon Shield", cat:"Weapons & Armor", station:"Armour Bench", use:"Dragon-tier off-hand defensive item; the top smithing tier.", isNew:true},
+  {name:"Dragon Kiteshield", cat:"Weapons & Armor", station:"N/A (Loot - Kuldra)", use:"Dragon-tier off-hand defensive item; a unique drop from Kuldra, the God Eater.", isNew:true},
+  {name:"Dragon Scimitar", cat:"Weapons & Armor", station:"Blacksmith's", use:"Dragon-tier fast one-handed melee weapon; the top smithing tier.", isNew:true},
+  {name:"Dragon Crossbow", cat:"Weapons & Armor", station:"Fletching Bench", use:"Dragon-tier ranged weapon; fires bolts. The top fletching tier.", isNew:true},
+  {name:"Black Dragonhide Body", cat:"Weapons & Armor", station:"Armour Bench", use:"Ranged body armor; crafted from Black Dragon Leather at the Armour Bench.", isNew:true},
+  {name:"Black Dragonhide Chaps", cat:"Weapons & Armor", station:"Armour Bench", use:"Ranged leg armor; crafted from Black Dragon Leather at the Armour Bench.", isNew:true},
+  {name:"Black Dragonhide Coif", cat:"Weapons & Armor", station:"Armour Bench", use:"Ranged head armor; crafted from Black Dragon Leather at the Armour Bench.", isNew:true},
+
+  // Ancestral magic gear (top magic tier, above Infinity) and Magic-wood bows
+  {name:"Ancestral Hat", cat:"Weapons & Armor", station:"Armour Bench", use:"Magic head armor; top tier, unlocked by Vis Cloth.", isNew:true},
+  {name:"Ancestral Robes", cat:"Weapons & Armor", station:"Armour Bench", use:"Magic body armor; top tier, unlocked by Vis Cloth.", isNew:true},
+  {name:"Ancestral Robe Legs", cat:"Weapons & Armor", station:"Armour Bench", use:"Magic leg armor; top tier, unlocked by Vis Cloth.", isNew:true},
+  {name:"Ancestral Wand", cat:"Weapons & Armor", station:"Fletching Bench", use:"Top-tier magic weapon; channels spells.", isNew:true},
+  {name:"Ancestral Staff", cat:"Weapons & Armor", station:"Fletching Bench", use:"Top-tier magic weapon; channels spells.", isNew:true},
+  {name:"Magic Shortbow", cat:"Weapons & Armor", station:"Fletching Bench", use:"Ranged weapon; fires arrows. Fletched from Magic Wood at the Fletching Bench.", isNew:true},
+  {name:"Magic Longbow", cat:"Weapons & Armor", station:"Fletching Bench", use:"Ranged weapon; fires arrows. Fletched from Magic Wood at the Fletching Bench.", isNew:true},
+
+  // Trophies & Vanity - additional (1.0 boss/loot)
+  {name:"Kuldra's Wrath", cat:"Trophies & Vanity", station:"N/A (Loot - Kuldra)", use:"Unique end-game weapon dropped by Kuldra, the God Eater in the Scorned Wilderness raid.", isNew:true},
+  {name:"Abysmal Whip", cat:"Trophies & Vanity", station:"N/A (Trophy Chest)", use:"Intermediate-tier melee whip weapon, distinct from the higher-tier Abyssal Whip."},
 ];
 const DEFAULT_CHANGELOG = [];
 
@@ -2153,6 +2208,9 @@ function escapeHtml(str) {
   div.textContent = String(str ?? '');
   return div.innerHTML;
 }
+function mapUrl(name) {
+  return 'https://dragonwilds.th.gl/guides/' + encodeURIComponent(name);
+}
 function getCategories() { return ['All', ...new Set(items.map(d => d.cat))]; }
 function getStations() { return ['All', ...[...new Set(items.map(d => d.station).filter(Boolean))].sort((a,b) => a.localeCompare(b))]; }
 function getFilteredItems() {
@@ -2229,7 +2287,10 @@ function renderResults() {
         <button class="btn-small" type="button" data-edit="${escapeHtml(d.id)}">Edit</button>
         <button class="btn-small btn-danger" type="button" data-delete="${escapeHtml(d.id)}">Delete</button>
       </div>
-      <div class="item-suggest"><button class="btn-small suggest-fix-btn" type="button" data-suggest-fix="${escapeHtml(d.id)}">Suggest a fix</button></div>
+      <div class="item-suggest">
+        <a class="btn-small suggest-fix-btn" href="${mapUrl(d.name)}" target="_blank" rel="noopener noreferrer">View on map ↗</a>
+        <button class="btn-small suggest-fix-btn" type="button" data-suggest-fix="${escapeHtml(d.id)}">Suggest a fix</button>
+      </div>
     </article>`).join('');
   resultsEl.querySelectorAll('[data-copy]').forEach(btn => btn.onclick = () => copyItem(btn.dataset.copy));
   resultsEl.querySelectorAll('[data-edit]').forEach(btn => btn.onclick = () => openEditModal(btn.dataset.edit));
