@@ -202,7 +202,7 @@
   <header class="site-header">
     <div class="brand">
       <h1>Dragonwilds Material Finder</h1>
-      <p class="sub">Search or filter by category to find what a material is used for. Covers the 1.0 "Rage of Kuldra" launch (Sept 15, 2026).</p>
+      <p class="sub">Search or filter by category to find what a material is used for. Covers the 1.0 "Rage of Kuldra" launch (Sept 15, 2026). <a href="https://dragonwilds.th.gl/" target="_blank" rel="noopener noreferrer">Community Interactive Map (th.gl) ↗</a></p>
       <div class="stats" id="stats" aria-label="Material statistics"></div>
     </div>
     <div class="header-actions">
@@ -2208,8 +2208,64 @@ function escapeHtml(str) {
   div.textContent = String(str ?? '');
   return div.innerHTML;
 }
-function mapUrl(name) {
-  return 'https://dragonwilds.th.gl/guides/' + encodeURIComponent(name);
+// Verified links to dragonwilds.th.gl's item database (/db/inventory/<id>) —
+// each checked individually to confirm it's real and matches. Only covers
+// materials you actually find by exploring/gathering (ores, logs, stone,
+// gems, herbs, raw fish); crafted/quest/loot items have no map location so
+// they intentionally get no link rather than a guessed, likely-broken one.
+const MAP_NODE_URLS = {
+  "Copper Ore": "item_resources_copperore",
+  "Tin Ore": "item_resources_tinore",
+  "Iron Ore": "item_resources_ironore",
+  "Silver Ore": "item_resources_silverore",
+  "Gold Ore": "item_resources_goldore",
+  "Blurite Ore": "item_resources_bluriteore",
+  "Mithril Ore": "item_resources_mithrilore",
+  "Adamantite Ore": "item_resources_adamantiteore",
+  "Runite Ore": "item_resources_ore_runite",
+  "Luminite Ore": "item_resources_ore_luminite",
+  "Oak Logs": "item_resources_wood_oak",
+  "Ash Logs": "item_resources_wood_ash",
+  "Maple Logs": "item_resources_wood_maple",
+  "Yew Logs": "item_resources_wood_yew",
+  "Willow Logs": "item_resources_wood_willow",
+  "Blightwood": "item_resources_wood_blightwood",
+  "Granite": "item_resources_granite",
+  "Clay": "item_resources_clay",
+  "Gypsum": "item_resources_gypsum",
+  "Sandstone": "item_resources_sandstone",
+  "Limestone": "item_resources_limestone",
+  "Sapphire": "item_resources_sapphire",
+  "Red Topaz": "item_resources_red_topaz",
+  "Jade": "item_resources_jade",
+  "Opal": "item_resources_opal",
+  "Diamond": "item_resources_diamond",
+  "Dragonstone": "item_resources_gem_dragonstone",
+  "Marrentil": "item_herb_marrentill",
+  "Harralander": "item_herb_harralander",
+  "Snapdragon": "item_herb_snapdragon",
+  "Toadflax": "item_herb_toadflax",
+  "Kwuarm": "item_herb_kwuarm",
+  "Irit": "item_herb_irit",
+  "Twilight Lily": "item_quest_dr_sq3_midnightlillyleaves",
+  "Desert Weed": "item_resources_weed_desert",
+  "Raw Trout": "item_resources_fish_raw_trout",
+  "Raw Herring": "item_resources_fish_raw_herring",
+  "Raw Anchovies": "item_resources_fish_raw_anchovies",
+  "Raw Armoured Catfish": "item_resources_fish_raw_armouredcatfish",
+  "Raw Beltfish": "item_resources_fish_raw_beltfish",
+  "Raw Desert Sole": "item_resources_fish_raw_desertsole",
+  "Raw Giant Krill": "item_resources_fish_raw_giantkrill",
+  "Raw Infernal Eel": "item_resources_fish_raw_infernaleel",
+  "Raw Lobster": "item_resources_fish_raw_lobster",
+  "Raw Monkfish": "item_resources_fish_raw_monkfish",
+  "Raw Salmon": "item_resources_fish_raw_salmon",
+  "Raw Sardine": "item_resources_fish_raw_sardine",
+  "Raw Shrimp": "item_resources_fish_raw_shrimp"
+};
+function mapNodeUrl(name) {
+  const id = MAP_NODE_URLS[name];
+  return id ? 'https://dragonwilds.th.gl/db/inventory/' + id : null;
 }
 function getCategories() { return ['All', ...new Set(items.map(d => d.cat))]; }
 function getStations() { return ['All', ...[...new Set(items.map(d => d.station).filter(Boolean))].sort((a,b) => a.localeCompare(b))]; }
@@ -2288,7 +2344,7 @@ function renderResults() {
         <button class="btn-small btn-danger" type="button" data-delete="${escapeHtml(d.id)}">Delete</button>
       </div>
       <div class="item-suggest">
-        <a class="btn-small suggest-fix-btn" href="${mapUrl(d.name)}" target="_blank" rel="noopener noreferrer">View on map ↗</a>
+        ${mapNodeUrl(d.name) ? `<a class="btn-small suggest-fix-btn" href="${mapNodeUrl(d.name)}" target="_blank" rel="noopener noreferrer">View on map ↗</a>` : ''}
         <button class="btn-small suggest-fix-btn" type="button" data-suggest-fix="${escapeHtml(d.id)}">Suggest a fix</button>
       </div>
     </article>`).join('');
